@@ -1,5 +1,4 @@
 import * as S from './styles'
-import { ArrowUpRight } from 'phosphor-react-native'
 
 import logoImg from '@assets/logo.png'
 import profileImg from '@assets/profilePic.png'

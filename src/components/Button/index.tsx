@@ -1,5 +1,5 @@
 import { TouchableOpacityProps } from "react-native";
-import { Plus, PencilLine, Trash, TextAlignLeft } from 'phosphor-react-native';
+import { Plus, PencilLine, Trash } from 'phosphor-react-native';
 
 import * as S from './styles'
 

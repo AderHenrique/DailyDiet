@@ -1,7 +1,7 @@
 import { Button } from '@components/Button'
 import * as S from './styles'
 
-export function Meals() {
+export function AddMeal() {
   return (
     <S.Container>
       <S.Title>
