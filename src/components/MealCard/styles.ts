@@ -1,22 +1,13 @@
 import styled from "styled-components/native";
 
-export const Container = styled.View`
 
-`
-
-export const Date = styled.Text`
-  color: ${({ theme }) => theme.COLORS.GRAY_1};
-  font-family: ${({ theme }) => theme.FONT_FAMILY.BOLD};
-  font-size: ${({ theme }) => theme.FONT_SIZE.XL}px;
-  margin-bottom: 12px;
-`
-
-export const MealContainer = styled.TouchableOpacity`
+export const Container = styled.TouchableOpacity`
   flex-direction: row;
   align-items: center;
   border: 1px solid ${({ theme }) => theme.COLORS.GRAY_5};
   border-radius: 6px;
   padding: 16px; 
+  margin-top: 8px;
 `
 
 export const MealTextContainer = styled.View`

@@ -1,4 +1,3 @@
-// src/types/styled.d.ts
 import 'styled-components';
 import theme from '../../src/theme'
 

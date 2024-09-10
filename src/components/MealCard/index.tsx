@@ -1,23 +1,33 @@
-import * as S from './styles'
-
-import statusImg from '@assets/status.png'
+import React, { useMemo } from 'react';
 import { LineVertical } from 'phosphor-react-native';
 
-export function MealCard() {
-  return(
-    <S.Container>
-      <S.Date>
-        12.08.22
-      </S.Date>
-      <S.MealContainer>
-        <S.MealTextContainer>
-          <S.Hour>16:00</S.Hour>
-          <LineVertical size={22} color="#B9BBBC" />
-          <S.MealName>X-tudo</S.MealName>
-        </S.MealTextContainer>
-        <S.MealStatus source={statusImg}/>
-      </S.MealContainer>
-    </S.Container>
-    
-  )
+import * as S from './styles';
+
+import greenStatusImg from '@assets/GreenStatus.png';
+import redStatusImg from '@assets/RedStatus.png';
+
+interface MealCardProps {
+  hour: string;
+  mealName: string;
+  statusImg: 'green' | 'red';
+  onPress: () => void;
 }
+
+const MealCard: React.FC<MealCardProps> = ({ hour, mealName, statusImg, onPress }) => {
+  const statusImage = useMemo(() => {
+    return statusImg === 'green' ? greenStatusImg : redStatusImg;
+  }, [statusImg]);
+
+  return (
+    <S.Container onPress={onPress}>
+      <S.MealTextContainer>
+        <S.Hour>{hour}</S.Hour>
+        <LineVertical size={22} color="#B9BBBC" />
+        <S.MealName>{mealName}</S.MealName>
+      </S.MealTextContainer>
+      <S.MealStatus source={statusImage} />
+    </S.Container>
+  );
+};
+
+export default MealCard;

@@ -1,89 +1,92 @@
 import { Alert, Keyboard, TouchableWithoutFeedback } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useState } from 'react';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useEffect, useState } from 'react';
 
 import * as S from './styles';
 
 import CheckButtonDiet from '@components/CheckButtonDiet';
-import RoundedHeader  from '@components/RoundedHeader';
+import RoundedHeader from '@components/RoundedHeader';
 import InputText from '@components/InputText';
 import InputDate from '@components/InputDate';
 import InputTime from '@components/InputTime';
 import Button from '@components/Button';
-
-import { MEAL_COLLECTION } from '@storage/storageConfig';
+import MealStorageDTO from '@storage/meal/MealStorageDTO';
 import getMealsStored from '@storage/meal/getMealsStored';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import updateMeal from '@storage/meal/updateMeal';
 
-export function NewMeal() {
-  const navigator = useNavigation();
-  
+export function MealInfoEdit() {
+  const route = useRoute();
+  const { id } = route.params as { id: string };
+  const [meal, setMeal] = useState<MealStorageDTO | null>(null);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<'yes' | 'no' | null>(null); 
 
-  function handleSelectStatus(status: string) {
-    setSelectedStatus(status);
-  }
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    async function loadMeal() {
+      const meals = await getMealsStored();
+      const mealDetails = meals.find(meal => meal.id === id);
+      if (mealDetails) {
+        setMeal(mealDetails);
+        setName(mealDetails.name);
+        setDescription(mealDetails.description);
+        setDate(mealDetails.date);
+        setTime(mealDetails.time);
+        setSelectedStatus(mealDetails.isInDiet);
+      }
+    }
+    loadMeal();
+  }, [id]);
 
   async function handleSaveMeal() {
     if (!name || !description || !date || !time || !selectedStatus) {
-      Alert.alert(
-        "Campos Necessários",
-        "Por favor, preencha todos os campos.",
-        [{ text: "OK" }]
-      );
+      Alert.alert("Erro", "Por favor, preencha todos os campos.");
       return;
     }
 
-    const newMeal = {
-      id: String(new Date().getTime()), 
+    const updatedMeal: MealStorageDTO = {
+      id,
       name,
       description,
       date,
       time,
-      isInDiet: selectedStatus as 'yes' | 'no',
+      isInDiet: selectedStatus, 
     };
 
     try {
-      const existingMeals = await getMealsStored(); 
-      const updatedMeals = [...existingMeals, newMeal]; 
-      await AsyncStorage.setItem(MEAL_COLLECTION, JSON.stringify(updatedMeals)); 
-
-      const storedMeals = await AsyncStorage.getItem(MEAL_COLLECTION);
-      console.log('Dados armazenados:', storedMeals);
-
-      
-      if (selectedStatus === 'yes') {
-        navigator.navigate('goodMealScreen');
-      } else if (selectedStatus === 'no') {
-        navigator.navigate('badMealScreen');
-      }
-
-    } catch (error) {
-      console.error("Erro ao salvar refeição: ", error);
+      await updateMeal(updatedMeal);
       Alert.alert(
-        "Erro",
-        "Não foi possível salvar a refeição.",
-        [{ text: "OK" }]
-      );
+      'Sucesso',
+      'Refeição atualizada com sucesso!',
+      [
+        {
+          text: 'OK',
+          onPress: () => {
+            navigation.navigate('home');
+          }
+        }
+      ]
+    );
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível salvar as alterações.');
     }
   }
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <S.Container>
-        <RoundedHeader backgroundStatus={'gray'} title='Nova Refeição'/>
-        
+        <RoundedHeader backgroundStatus={'gray'} title='Editar refeição' />
+
         <S.BackgroundContainer>
           <S.Text>Nome</S.Text>
           <InputText height={50} value={name} onChangeText={setName} />
-          
           <S.Text>Descrição</S.Text>
           <InputText height={150} value={description} onChangeText={setDescription} />
-          
+
           <S.DateTimeContainer>
             <S.DataContainer>
               <S.Text>Data</S.Text>
@@ -97,20 +100,20 @@ export function NewMeal() {
           </S.DateTimeContainer>
 
           <S.Text>Está dentro da dieta?</S.Text>
-          
+
           <S.InputDietContainer>
             <CheckButtonDiet
               status='yes'
               isSelected={selectedStatus === 'yes'}
-              onSelect={() => handleSelectStatus('yes')} />
+              onSelect={() => setSelectedStatus('yes')} /> 
             <CheckButtonDiet
               status='no'
               isSelected={selectedStatus === 'no'}
-              onSelect={() => handleSelectStatus('no')} />
+              onSelect={() => setSelectedStatus('no')} /> 
           </S.InputDietContainer>
-          
+
           <S.ButtonContainer>
-            <Button title={'Cadastrar refeição'} onPress={handleSaveMeal} type={'TEXT'} />
+            <Button title={'Salvar alterações'} onPress={handleSaveMeal} type={'TEXT'} />
           </S.ButtonContainer>
 
         </S.BackgroundContainer>
